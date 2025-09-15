@@ -15,7 +15,7 @@ export async function POST(req: NextRequest) {
 
     const data = parsed.data;
 
-    // Placeholder owner until auth is wired. Must be a valid UUID.
+    // fake UUID until auth is wired
     const ownerId = "00000000-0000-0000-0000-000000000000";
 
     const created = await prisma.buyer.create({

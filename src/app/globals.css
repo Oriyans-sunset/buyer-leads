@@ -20,7 +20,127 @@
 }
 
 body {
-  background: var(--background);
+  background: color-mix(in oklab, var(--background) 96%, #6b7280 4%);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-geist-sans), ui-sans-serif, system-ui, -apple-system,
+    Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji",
+    "Segoe UI Emoji";
+}
+
+/* Simple design tokens */
+.card {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.75rem;
+  box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.04);
+}
+
+@media (prefers-color-scheme: dark) {
+  .card {
+    background: #0f0f10;
+    border-color: #1f2937;
+    box-shadow: none;
+  }
+}
+
+.input,
+.select,
+.textarea {
+  display: block;
+  width: 100%;
+  border: 1px solid #e5e7eb;
+  background: #fff;
+  border-radius: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.95rem;
+  outline: none;
+  transition: box-shadow 120ms, border-color 120ms;
+}
+.input:focus,
+.select:focus,
+.textarea:focus {
+  border-color: #111827;
+  box-shadow: 0 0 0 4px rgb(17 24 39 / 0.08);
+}
+
+/* Normalize select arrow for consistent light and dark icons */
+.select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 20 20' fill='none'%3E%3Cpath d='M5.5 7.5L10 12l4.5-4.5' stroke='%23111827' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.6rem center;
+  background-size: 1rem;
+  padding-right: 2rem;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  padding: 0.5rem 0.875rem;
+  border: 1px solid transparent;
+}
+.btn-primary {
+  background: #111827;
+  color: #fff;
+}
+.btn-primary:hover { background: #0b1220; }
+.btn-primary:disabled { opacity: 0.6; }
+
+.btn-ghost {
+  border-color: #e5e7eb;
+  background: #fff;
+}
+.btn-ghost:hover { background: #f9fafb; }
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.125rem 0.5rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border: 1px solid rgba(17, 24, 39, 0.08);
+}
+
+/* Dark mode variants */
+@media (prefers-color-scheme: dark) {
+  .input,
+  .select,
+  .textarea {
+    background-color: #0f0f10; /* use background-color so we don't reset background-image */
+    border-color: #2a2f3a;
+    color: #f3f4f6; /* brighter text for readability */
+    color-scheme: dark; /* normalize native control styling */
+  }
+  .input::placeholder,
+  .textarea::placeholder { color: #cbd5e1; }
+  .input:focus,
+  .select:focus,
+  .textarea:focus {
+    border-color: #334155;
+    box-shadow: 0 0 0 4px rgb(51 65 85 / 0.35);
+  }
+  .select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 20 20' fill='none'%3E%3Cpath d='M5.5 7.5L10 12l4.5-4.5' stroke='%23d1d5db' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.6rem center;
+    background-size: 1rem;
+    padding-right: 2rem;
+    color: #f3f4f6;
+  }
+  .select option { color: #e5e7eb; background: #0f0f10; }
+  .btn-ghost {
+    background: #0f0f10;
+    border-color: #2a2f3a;
+    color: #e5e7eb;
+  }
+  .btn-ghost:hover { background: #111215; }
+  .btn-primary { background: #1f2937; }
+  .btn-primary:hover { background: #111827; }
+  .badge { border-color: rgba(229, 231, 235, 0.12); }
 }
