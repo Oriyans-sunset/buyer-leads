@@ -1,36 +1,109 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+Buyer Lead Intake — Next.js + Supabase
 
-## Getting Started
+Small app to capture, list and manage buyer leads with validation, filters, and CSV import/export.
 
-First, run the development server:
+Stack
+- Next.js App Router (15.x) + TypeScript
+- Prisma + Postgres (Supabase) with migrations
+- Zod for validation (client + server)
+- Supabase Auth (magic link, PKCE) + SSR helpers
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+Quick Start
+1) Install deps
+   - `npm install`
+2) Env vars (see `.env` for example)
+   - `NEXT_PUBLIC_SUPABASE_URL`
+   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+   - `DATABASE_URL` and `DIRECT_URL`
+3) DB migrate/seed
+   - `npx prisma migrate deploy`
+   - optional seed: `npm run prisma:seed`
+4) Dev
+   - `npm run dev` → http://localhost:3000
+5) Test
+   - `npm test`
+
+Auth
+- Magic link login from `/login` using Supabase Auth (PKCE).
+- Auth callback handled at `/auth/callback` (server route sets cookies).
+
+Data Model
+- `buyers` (lead):
+  `id, fullName, email?, phone, city, propertyType, bhk?, purpose, budgetMin?, budgetMax?, timeline, source, status=New, notes?, tags[], ownerId, updatedAt`.
+- `buyer_history`: `id, buyerId, changedBy, changedAt, diff` (JSON of changed fields).
+
+Pages & Flows
+- Create Lead `/buyers/new`
+  - Fields: fullName, email, phone, city, propertyType, bhk (conditional), purpose, budgetMin, budgetMax, timeline, source, notes, tags[]
+  - Client + server Zod validation:
+    - `fullName` ≥ 2; `phone` numeric 10–15; valid `email` if present
+    - `budgetMax ≥ budgetMin` when both present (shared validator)
+    - `bhk` required iff `propertyType ∈ {Apartment,Villa}`
+  - On create: lead + buyer_history entry
+
+- List & Search `/buyers`
+  - SSR with pagination (10/page)
+  - URL‑synced filters: `city, propertyType, status, timeline`
+  - Debounced search across `fullName|phone|email`
+  - Sort: `updatedAt` desc
+  - Columns: Name, Phone, City, Property, Budget, Timeline, Status, UpdatedAt
+
+- View & Edit `/buyers/[id]`
+  - Edit with same validation
+  - Concurrency: hidden `updatedAt`; stale edits rejected with friendly message
+  - History: last 5 changes from `buyer_history`
+  - Back to list button
+
+Import / Export
+- CSV Import: `/api/buyers/import`
+  - Max 200 rows; strict header order:
+    `fullName,email,phone,city,propertyType,bhk,purpose,budgetMin,budgetMax,timeline,source,notes,tags,status`
+  - Per‑row validation; unknown enums cause errors with hints
+  - Inserts only valid rows inside a transaction; returns `{ inserted, errors[] }`
+- CSV Export: `/api/buyers/export`
+  - Exports the current filtered list (respects filters/search/sort)
+
+Ownership & Auth
+- Logged-in users can read the list and detail pages.
+- Owner attribution stored on leads; future enhancement can scope edits by `ownerId`.
+
+Quality Bar
+- Unit test
+  - `tests/validators.test.mjs` exercises the shared budget range validator
+- Simple rate limit
+  - In-memory per-IP guard
+  - Create: 10/min; Update: 30/min; returns 429 with `Retry-After`
+- Error boundary + empty state
+  - `src/app/buyers/error.tsx` provides a friendly error card
+  - Buyers list shows a clear empty state with CTA
+- Accessibility basics
+  - All fields labeled
+  - Live region announces form/server errors
+  - `aria-invalid` + `aria-describedby` on errored inputs
+  - Keyboard focus moved to first invalid field on submit
+
+Design Notes
+- Validation lives in `src/app/lib/validation/buyer.schema.ts` (Zod) and is shared client/server.
+- SSR for `/buyers` keeps filters, pagination and sort on the server.
+- Import uses a small custom CSV parser to avoid extra deps and surfaces row-level errors.
+- Rate limiting is in-memory per runtime (good for a single instance/local dev). For multi-region/production, replace with a shared store (e.g., Redis).
+
+Project Scripts
+- `npm run dev` — start dev server
+- `npm run build` — build
+- `npm start` — start prod server
+- `npm run prisma:seed` — seed DB (optional)
+- `npm test` — run unit tests (Node’s test runner)
+
+Sample CSV
+```
+fullName,email,phone,city,propertyType,bhk,purpose,budgetMin,budgetMax,timeline,source,notes,tags,status
+Jane Doe,jane@example.com,9876543210,Chandigarh,Apartment,TWO,Buy,3000000,5000000,LT3M,Website,Looking near IT Park,"hot,priority",Qualified
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+What’s Done vs Skipped
+- Done: All must‑have flows (create/list/edit, CSV import/export), validation, SSR filters, simple rate limits, a11y basics, error boundary, unit test, magic‑link auth.
+- Skipped (nice‑to‑haves): tag chips/typeahead, status quick‑actions, full‑text search, optimistic UI, file upload.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+License
+- MIT (or adopt your org’s standard license)

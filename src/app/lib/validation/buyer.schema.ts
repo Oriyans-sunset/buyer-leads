@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { validateBudgetRange } from "@/app/lib/validators";
 
 export const CityEnum = z.enum([
   "Chandigarh",
@@ -79,15 +80,12 @@ export const buyerBaseSchema = z
   })
   .superRefine((data, ctx) => {
     // budgetMax >= budgetMin when both are present
-    if (
-      data.budgetMin != null &&
-      data.budgetMax != null &&
-      data.budgetMax < data.budgetMin
-    ) {
+    const r = validateBudgetRange(data.budgetMin as any, data.budgetMax as any);
+    if (!r.ok) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ["budgetMax"],
-        message: "budgetMax must be greater than or equal to budgetMin",
+        message: r.message || "Invalid budget range",
       });
     }
     // bhk required if Apartment or Villa

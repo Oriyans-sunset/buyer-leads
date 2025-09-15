@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server";
 import { prisma } from "@/app/lib/prisma";
 import { createBuyerSchema } from "@/app/lib/validation/buyer.schema";
+import { ipFromRequestHeaders, rateLimit } from "@/app/lib/rateLimit";
 
 // Update buyer with optimistic concurrency via updatedAt
 export async function PATCH(
@@ -8,6 +9,19 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    // Simple rate limit: 30 updates / minute per IP
+    const ip = ipFromRequestHeaders(req.headers);
+    const key = `buyers:update:${ip}`;
+    const rl = rateLimit(key, 30, 60_000);
+    if (!rl.ok) {
+      return new Response(JSON.stringify({ error: "RateLimited" }), {
+        status: 429,
+        headers: rl.retryAfterMs
+          ? { "Retry-After": String(Math.ceil(rl.retryAfterMs / 1000)) }
+          : undefined,
+      });
+    }
+
     const { id } = await params;
     const json = await req.json();
     const { updatedAt: prevUpdatedAtRaw, ...rest } = json || {};

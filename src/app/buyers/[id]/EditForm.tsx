@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -53,6 +53,13 @@ export default function EditForm({ id, initial }: { id: string; initial: any }) 
 
   const propertyType = watch("propertyType");
   const needsBhk = propertyType === "Apartment" || propertyType === "Villa";
+
+  useEffect(() => {
+    if (Object.keys(errors).length > 0) {
+      const el = document.querySelector('[aria-invalid="true"]') as HTMLElement | null;
+      el?.focus?.();
+    }
+  }, [errors]);
 
   const onSubmit = handleSubmit(async (values) => {
     setServerError(null);
@@ -116,8 +123,11 @@ export default function EditForm({ id, initial }: { id: string; initial: any }) 
   };
 
   return (
-    <form onSubmit={onSubmit} className="space-y-5">
+    <form onSubmit={onSubmit} className="space-y-5" aria-describedby={serverError ? 'form-error' : undefined}>
       <input type="hidden" {...register("updatedAt")} />
+      <div className="sr-only" aria-live="polite" id="form-error">
+        {serverError || Object.values(errors)[0]?.message?.toString()}
+      </div>
 
       {serverError && (
         <p className="text-red-600" role="alert">{serverError}</p>
@@ -128,9 +138,9 @@ export default function EditForm({ id, initial }: { id: string; initial: any }) 
         <label htmlFor="fullName" className="block text-sm text-gray-700 dark:text-gray-300 mb-1">
           Full Name
         </label>
-        <input id="fullName" className="input" {...register("fullName")} />
+        <input id="fullName" className="input" aria-invalid={!!errors.fullName} aria-describedby={errors.fullName ? 'err-fullName' : undefined} {...register("fullName")} />
         {errors.fullName && (
-          <p className="text-red-600 text-sm">{errors.fullName.message}</p>
+          <p id="err-fullName" className="text-red-600 text-sm">{errors.fullName.message}</p>
         )}
       </div>
 
@@ -139,18 +149,18 @@ export default function EditForm({ id, initial }: { id: string; initial: any }) 
           <label htmlFor="email" className="block text-sm text-gray-700 dark:text-gray-300 mb-1">
             Email
           </label>
-          <input id="email" className="input" {...register("email")} />
+          <input id="email" className="input" aria-invalid={!!errors.email} aria-describedby={errors.email ? 'err-email' : undefined} {...register("email")} />
           {errors.email && (
-            <p className="text-red-600 text-sm">{errors.email.message}</p>
+            <p id="err-email" className="text-red-600 text-sm">{errors.email.message}</p>
           )}
         </div>
         <div>
           <label htmlFor="phone" className="block text-sm text-gray-700 dark:text-gray-300 mb-1">
             Phone
           </label>
-          <input id="phone" className="input" {...register("phone")} />
+          <input id="phone" className="input" aria-invalid={!!errors.phone} aria-describedby={errors.phone ? 'err-phone' : undefined} {...register("phone")} />
           {errors.phone && (
-            <p className="text-red-600 text-sm">{errors.phone.message}</p>
+            <p id="err-phone" className="text-red-600 text-sm">{errors.phone.message}</p>
           )}
         </div>
       </div>
@@ -158,7 +168,7 @@ export default function EditForm({ id, initial }: { id: string; initial: any }) 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div>
           <label className="block text-sm text-gray-700 dark:text-gray-300 mb-1">City</label>
-          <select className="select" {...register("city")}>
+          <select className="select" aria-invalid={!!errors.city} {...register("city")}>
             {cityOptions.map((opt) => (
               <option key={opt} value={opt}>
                 {opt}
@@ -169,7 +179,7 @@ export default function EditForm({ id, initial }: { id: string; initial: any }) 
 
         <div>
           <label className="block text-sm text-gray-700 dark:text-gray-300 mb-1">Property Type</label>
-          <select className="select" {...register("propertyType")}>
+          <select className="select" aria-invalid={!!errors.propertyType} {...register("propertyType")}>
             {propertyOptions.map((opt) => (
               <option key={opt} value={opt}>
                 {opt}
@@ -181,7 +191,7 @@ export default function EditForm({ id, initial }: { id: string; initial: any }) 
         {needsBhk && (
           <div>
             <label className="block text-sm text-gray-700 dark:text-gray-300 mb-1">BHK</label>
-            <select className="select" {...register("bhk")}>
+            <select className="select" aria-invalid={!!errors.bhk} {...register("bhk")}>
               <option value="">Select</option>
               {bhkOptions.map((opt) => (
                 <option key={opt} value={opt}>
@@ -199,7 +209,7 @@ export default function EditForm({ id, initial }: { id: string; initial: any }) 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div>
           <label className="block text-sm text-gray-700 dark:text-gray-300 mb-1">Purpose</label>
-          <select className="select" {...register("purpose")}>
+          <select className="select" aria-invalid={!!errors.purpose} {...register("purpose")}>
             {purposeOptions.map((opt) => (
               <option key={opt} value={opt}>
                 {opt}
@@ -209,14 +219,14 @@ export default function EditForm({ id, initial }: { id: string; initial: any }) 
         </div>
         <div>
           <label className="block text-sm text-gray-700 dark:text-gray-300 mb-1">Budget Min (INR)</label>
-          <input className="input" type="number" {...register("budgetMin")} />
+          <input className="input" type="number" aria-invalid={!!errors.budgetMin} {...register("budgetMin")} />
           {errors.budgetMin && (
             <p className="text-red-600 text-sm">{errors.budgetMin.message}</p>
           )}
         </div>
         <div>
           <label className="block text-sm text-gray-700 dark:text-gray-300 mb-1">Budget Max (INR)</label>
-          <input className="input" type="number" {...register("budgetMax")} />
+          <input className="input" type="number" aria-invalid={!!errors.budgetMax} {...register("budgetMax")} />
           {errors.budgetMax && (
             <p className="text-red-600 text-sm">{errors.budgetMax.message}</p>
           )}
@@ -226,7 +236,7 @@ export default function EditForm({ id, initial }: { id: string; initial: any }) 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div>
           <label className="block text-sm text-gray-700 dark:text-gray-300 mb-1">Timeline</label>
-          <select className="select" {...register("timeline")}>
+          <select className="select" aria-invalid={!!errors.timeline} {...register("timeline")}>
             {timelineOptions.map((opt) => (
               <option key={opt} value={opt}>
                 {timelineLabels[opt]}
@@ -236,7 +246,7 @@ export default function EditForm({ id, initial }: { id: string; initial: any }) 
         </div>
         <div>
           <label className="block text-sm text-gray-700 dark:text-gray-300 mb-1">Source</label>
-          <select className="select" {...register("source")}>
+          <select className="select" aria-invalid={!!errors.source} {...register("source")}>
             {sourceOptions.map((opt) => (
               <option key={opt} value={opt}>
                 {sourceLabels[opt]}
@@ -246,7 +256,7 @@ export default function EditForm({ id, initial }: { id: string; initial: any }) 
         </div>
         <div>
           <label className="block text-sm text-gray-700 dark:text-gray-300 mb-1">Status</label>
-          <select className="select" {...register("status")}>
+          <select className="select" aria-invalid={!!errors.status} {...register("status")}>
             {statusOptions.map((opt) => (
               <option key={opt} value={opt}>
                 {opt}
@@ -258,7 +268,7 @@ export default function EditForm({ id, initial }: { id: string; initial: any }) 
 
       <div>
         <label className="block text-sm text-gray-700 dark:text-gray-300 mb-1">Notes</label>
-        <textarea className="textarea" rows={4} {...register("notes")} />
+        <textarea className="textarea" rows={4} aria-invalid={!!errors.notes} {...register("notes")} />
         {errors.notes && (
           <p className="text-red-600 text-sm">{errors.notes.message}</p>
         )}

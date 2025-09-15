@@ -182,13 +182,16 @@ export default async function BuyersPage({
                   </td>
                 </tr>
               ))}
-              {items.length === 0 && (
-                <tr>
-                  <td className="p-4 text-center text-gray-600" colSpan={9}>
-                    No results
-                  </td>
-                </tr>
-              )}
+            {items.length === 0 && (
+              <tr>
+                <td className="p-8 text-center text-gray-600" colSpan={9}>
+                  <div className="flex flex-col items-center gap-2">
+                    <div className="text-sm">No buyer leads found</div>
+                    <a className="btn btn-ghost" href="/buyers/new">Create your first lead</a>
+                  </div>
+                </td>
+              </tr>
+            )}
             </tbody>
           </table>
         </div>

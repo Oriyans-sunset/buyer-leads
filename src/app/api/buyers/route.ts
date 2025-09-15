@@ -1,9 +1,23 @@
 import { NextRequest } from "next/server";
 import { prisma } from "@/app/lib/prisma";
 import { createBuyerSchema } from "@/app/lib/validation/buyer.schema";
+import { ipFromRequestHeaders, rateLimit } from "@/app/lib/rateLimit";
 
 export async function POST(req: NextRequest) {
   try {
+    // Simple rate limit: 10 creates / minute per IP
+    const ip = ipFromRequestHeaders(req.headers);
+    const key = `buyers:create:${ip}`;
+    const rl = rateLimit(key, 10, 60_000);
+    if (!rl.ok) {
+      return new Response(JSON.stringify({ error: "RateLimited" }), {
+        status: 429,
+        headers: rl.retryAfterMs
+          ? { "Retry-After": String(Math.ceil(rl.retryAfterMs / 1000)) }
+          : undefined,
+      });
+    }
+
     const json = await req.json();
     const parsed = createBuyerSchema.safeParse(json);
     if (!parsed.success) {

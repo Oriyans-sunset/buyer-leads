@@ -66,7 +66,7 @@ export default function LoginPage() {
       <div className="card w-full max-w-md p-6">
         <h1 className="text-xl font-semibold mb-2">Welcome back</h1>
         <p className="text-sm text-gray-600 mb-4">Sign in via magic link</p>
-        <form onSubmit={onSubmit} className="space-y-4">
+        <form onSubmit={onSubmit} className="space-y-4" aria-busy={status === 'sending'}>
           <div>
             <label htmlFor="email" className="block text-sm text-gray-700 mb-1">
               Email
@@ -90,7 +90,7 @@ export default function LoginPage() {
           </button>
         </form>
         {message && (
-          <p className={`mt-4 ${status === "error" ? "text-red-600" : "text-green-700"}`}>
+          <p role="status" aria-live="polite" className={`mt-4 ${status === "error" ? "text-red-600" : "text-green-700"}`}>
             {message}
           </p>
         )}

@@ -69,6 +69,7 @@ export default function ImportExportBar() {
               type="file"
               name="file"
               accept=".csv,text/csv"
+              aria-label="Choose CSV file"
               className="text-sm file:mr-3 file:px-3 file:py-1.5 file:rounded-md file:border-0 file:bg-gray-100 file:text-sm file:font-medium hover:file:bg-gray-200 dark:file:bg-gray-800 dark:file:text-gray-200"
             />
           </form>
