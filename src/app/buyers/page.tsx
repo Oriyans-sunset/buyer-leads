@@ -24,13 +24,13 @@ function parsePage(p?: string) {
   return Math.floor(n);
 }
 
-function pickEnum<T extends readonly [string, ...string[]]>(
+function pickEnum<T extends string>(
   val: string | undefined,
-  allowed: T
-): T[number] | undefined {
+  allowed: readonly T[]
+): T | undefined {
   if (!val) return undefined;
   return (allowed as readonly string[]).includes(val)
-    ? (val as T[number])
+    ? (val as T)
     : undefined;
 }
 
@@ -86,15 +86,14 @@ export default async function BuyersPage({
     return `?${sp.toString()}`;
   };
 
-  const timelineLabels: Record<(typeof TimelineEnum.options)[number], string> =
-    {
-      LT3M: "0-3m",
-      M3_TO_6: "3-6m",
-      GT6M: ">6m",
-      Exploring: "Exploring",
-    };
+  const timelineLabels = {
+    LT3M: "0-3m",
+    M3_TO_6: "3-6m",
+    GT6M: ">6m",
+    Exploring: "Exploring",
+  } as const;
 
-  const statusTone: Record<(typeof StatusEnum.options)[number], string> = {
+  const statusTone = {
     New: "bg-blue-50 dark:bg-blue-400/10 text-blue-700 dark:text-blue-300",
     Qualified:
       "bg-indigo-50 dark:bg-indigo-400/10 text-indigo-700 dark:text-indigo-300",
@@ -107,7 +106,7 @@ export default async function BuyersPage({
     Converted:
       "bg-green-50 dark:bg-green-400/10 text-green-700 dark:text-green-300",
     Dropped: "bg-rose-50 dark:bg-rose-400/10 text-rose-700 dark:text-rose-300",
-  };
+  } as const;
 
   return (
     <div className="max-w-7xl mx-auto p-6">
@@ -162,10 +161,10 @@ export default async function BuyersPage({
                       : "-"}
                   </td>
                   <td className="px-3 py-2">
-                    {timelineLabels[b.timeline as any]}
+                    {timelineLabels[b.timeline as keyof typeof timelineLabels]}
                   </td>
                   <td className="px-3 py-2">
-                    <span className={`badge ${statusTone[b.status as any]}`}>
+                    <span className={`badge ${statusTone[b.status as keyof typeof statusTone]}`}>
                       {b.status}
                     </span>
                   </td>

@@ -11,6 +11,7 @@ import {
   SourceEnum,
   StatusEnum,
 } from "@/app/lib/validation/buyer.schema";
+import type { CreateBuyerInput } from "@/app/lib/validation/buyer.schema";
 
 const EXPECTED_HEADERS = [
   "fullName",
@@ -170,7 +171,7 @@ export async function POST(req: NextRequest) {
     }
 
     const errors: { row: number; message: string }[] = [];
-    const validData: ReturnType<typeof normalizeRow>[] = [];
+    const validData: CreateBuyerInput[] = [];
 
     const hints = enumHints();
 
@@ -197,7 +198,8 @@ export async function POST(req: NextRequest) {
       if (!parsed.success) {
         const issueMsgs = parsed.error.issues.map((iss) => {
           const path = iss.path?.[0] as string | undefined;
-          if (iss.code === "invalid_enum_value" && path && (hints as any)[path]) {
+          const code = (iss as any).code as string;
+          if ((code === "invalid_value" || code === "invalid_enum_value") && path && (hints as any)[path]) {
             return `${path}: invalid value. Expected one of [${(hints as any)[path]}]`;
           }
           return path ? `${path}: ${iss.message}` : iss.message;
@@ -250,4 +252,3 @@ export async function POST(req: NextRequest) {
     return Response.json({ error: "ServerError" }, { status: 500 });
   }
 }
-

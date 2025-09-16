@@ -1,11 +1,19 @@
 "use client";
 
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useEffect, useState, Suspense } from "react";
 import { supabase } from "@/app/lib/supabaseClient";
 import { useUser } from "@/app/hooks/useUser";
 import { useRouter, useSearchParams } from "next/navigation";
 
 export default function LoginPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen grid place-items-center p-6">Loading…</div>}>
+      <LoginContent />
+    </Suspense>
+  );
+}
+
+function LoginContent() {
   const router = useRouter();
   const sp = useSearchParams();
   const { user, loading } = useUser();

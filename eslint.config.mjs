@@ -17,8 +17,18 @@ const eslintConfig = [
       ".next/**",
       "out/**",
       "build/**",
+      "src/generated/**",
       "next-env.d.ts",
     ],
+  },
+  // Relax rules for generated/vendor code so builds don't fail on it
+  {
+    files: ["src/generated/**"],
+    rules: {
+      "@typescript-eslint/no-require-imports": "off",
+      "@typescript-eslint/no-unused-vars": "off",
+      "@typescript-eslint/no-unused-expressions": "off",
+    },
   },
 ];
 

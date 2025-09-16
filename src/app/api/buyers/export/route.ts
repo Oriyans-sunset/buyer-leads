@@ -7,13 +7,13 @@ import {
   TimelineEnum,
 } from "@/app/lib/validation/buyer.schema";
 
-function pickEnum<T extends readonly [string, ...string[]]>(
+function pickEnum<T extends string>(
   val: string | undefined,
-  allowed: T
-): T[number] | undefined {
+  allowed: readonly T[]
+): T | undefined {
   if (!val) return undefined;
   return (allowed as readonly string[]).includes(val)
-    ? (val as T[number])
+    ? (val as T)
     : undefined;
 }
 
@@ -116,4 +116,3 @@ export async function GET(req: NextRequest) {
     return new Response("Server error", { status: 500 });
   }
 }
-
