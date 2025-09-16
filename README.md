@@ -104,6 +104,3 @@ Jane Doe,jane@example.com,9876543210,Chandigarh,Apartment,TWO,Buy,3000000,500000
 What’s Done vs Skipped
 - Done: All must‑have flows (create/list/edit, CSV import/export), validation, SSR filters, simple rate limits, a11y basics, error boundary, unit test, magic‑link auth.
 - Skipped (nice‑to‑haves): tag chips/typeahead, status quick‑actions, full‑text search, optimistic UI, file upload.
-
-License
-- MIT (or adopt your org’s standard license)
