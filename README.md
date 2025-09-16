@@ -1,4 +1,4 @@
-Buyer Lead Intake — Next.js + Supabase
+Vercel deployment: https://buyer-leads-ochre.vercel.app/
 
 Small app to capture, list and manage buyer leads with validation, filters, and CSV import/export.
 
