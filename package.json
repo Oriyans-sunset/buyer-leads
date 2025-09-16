@@ -4,7 +4,10 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
+    "predev": "prisma generate",
     "build": "next build --turbopack",
+    "prebuild": "prisma generate",
+    "postinstall": "prisma generate",
     "start": "next start",
     "lint": "eslint",
     "prisma:seed": "node prisma/seed.mjs",
